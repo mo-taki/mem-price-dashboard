@@ -1,0 +1,11 @@
+# secrets
+.env
+
+# sqlite
+*.db
+*.db-journal
+
+# build
+/mem-price-dashboard
+/dist
+node_modules/
