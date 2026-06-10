@@ -43,7 +43,6 @@ type StockPriceResponse struct {
 func main(){
 	godotenv.Load()
 	apiKey := os.Getenv("JQUANTS_API_KEY")
-	fmt.Println("API Key:", apiKey)
 
 	api_url := "https://api.jquants.com/v2/equities/bars/daily"
 	params := url.Values{}
