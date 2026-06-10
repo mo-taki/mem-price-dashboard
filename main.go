@@ -19,25 +19,31 @@ import (
 //go:embed schema.sql
 var schemaSQL string
 
+const upsertStockPriceSQL = `INSERT INTO stock_prices (code, date, open, high, low, close, volume, adj_close, adj_factor)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(code, date)
+		DO UPDATE SET open=excluded.open, high=excluded.high, low=excluded.low, close=excluded.close, volume=excluded.volume, adj_close=excluded.adj_close, adj_factor=excluded.adj_factor`
+
 type StockPriceResponse struct {
-	Data []struct {
-		Date      string  `json:"Date"`
-		Code      string  `json:"Code"`
-		O         float64 `json:"O"`
-		H         float64 `json:"H"`
-		L         float64 `json:"L"`
-		C         float64 `json:"C"`
-		Ul        string  `json:"UL"`
-		Ll        string  `json:"LL"`
-		Vo        float64 `json:"Vo"`
-		Va        float64 `json:"Va"`
-		AdjFactor float64 `json:"AdjFactor"`
-		AdjO      float64 `json:"AdjO"`
-		AdjH      float64 `json:"AdjH"`
-		AdjL      float64 `json:"AdjL"`
-		AdjC      float64 `json:"AdjC"`
-		AdjVo     float64 `json:"AdjVo"`
-	} `json:"data"`
+	Data []StockPrice `json:"data"`
+}
+
+type StockPrice struct {
+	Date      string  `json:"Date"`
+	Code      string  `json:"Code"`
+	O         float64 `json:"O"`
+	H         float64 `json:"H"`
+	L         float64 `json:"L"`
+	C         float64 `json:"C"`
+	Ul        string  `json:"UL"`
+	Ll        string  `json:"LL"`
+	Vo        float64 `json:"Vo"`
+	Va        float64 `json:"Va"`
+	AdjFactor float64 `json:"AdjFactor"`
+	AdjO      float64 `json:"AdjO"`
+	AdjH      float64 `json:"AdjH"`
+	AdjL      float64 `json:"AdjL"`
+	AdjC      float64 `json:"AdjC"`
+	AdjVo     float64 `json:"AdjVo"`
 }
 
 func main(){
@@ -98,11 +104,8 @@ func main(){
 		return
 	}
 
-	insertSQL := `INSERT INTO stock_prices (code, date, open, high, low, close, volume, adj_close, adj_factor)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(code, date)
-		DO UPDATE SET open=excluded.open, high=excluded.high, low=excluded.low, close=excluded.close, volume=excluded.volume, adj_close=excluded.adj_close, adj_factor=excluded.adj_factor`
 	for _, data := range stockPriceResponse.Data {
-		_, err = db.Exec(insertSQL,
+		_, err = db.Exec(upsertStockPriceSQL,
 			data.Code, data.Date, data.O, data.H, data.L, data.C, data.Vo, data.AdjC, data.AdjFactor)
 		if err != nil {
 			fmt.Println("Error inserting data:", err)
