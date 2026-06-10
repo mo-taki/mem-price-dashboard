@@ -66,6 +66,12 @@ func main(){
 	}
 	defer response.Body.Close()
 
+	// Check if the response status is OK
+	if response.StatusCode != http.StatusOK {
+		fmt.Println("Error: Received non-200 response status")
+		return
+	}
+
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("Error:", err)
