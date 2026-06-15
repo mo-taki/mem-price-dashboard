@@ -49,17 +49,41 @@ type StockPrice struct {
 func main(){
 	godotenv.Load()
 	apiKey := os.Getenv("JQUANTS_API_KEY")
+	stockCode := "285A0"	// Kioxia
+	dbPath := "./stock_prices.db"
 
+	stockPriceResponse, err := fetchStockPrices(apiKey, stockCode)
+	if err != nil {
+		fmt.Println("Error fetching stock prices:", err)
+		return
+	}
+
+	db, err := setupDB(dbPath)
+	if err != nil {
+		fmt.Println("Error setting up database:", err)
+		return
+	}
+	defer db.Close()
+
+	for _, data := range stockPriceResponse.Data {
+		err := upsertStockPrice(db, data)
+		if err != nil {
+			fmt.Println("Error upserting stock price:", err)
+			continue
+		}
+	}
+}
+
+func fetchStockPrices(apiKey, code string) (*StockPriceResponse, error) {
 	api_url := "https://api.jquants.com/v2/equities/bars/daily"
 	params := url.Values{}
-	params.Set("code", "285A0")
+	params.Set("code", code)
 
 	reqURL := api_url + "?" + params.Encode()
 
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		return nil, err
 	}
 	req.Header.Set("x-api-key", apiKey)
 	req.Header.Set("Content-Type", "application/json")
@@ -67,50 +91,49 @@ func main(){
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		return nil, err
 	}
 	defer response.Body.Close()
 
 	// Check if the response status is OK
 	if response.StatusCode != http.StatusOK {
-		fmt.Println("Error: Received non-200 response status")
-		return
+		return nil, fmt.Errorf("received non-200 response status: %d", response.StatusCode)
 	}
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
-	db, err := sql.Open("sqlite", "./stock_prices.db")
-	if err != nil {
-		fmt.Println("Error opening database:", err)
-		return
-	}
-	defer db.Close()
-
-	_, err = db.Exec(schemaSQL)
-	if err != nil {
-		fmt.Println("Error executing schema:", err)
-		return
+		return nil, err
 	}
 
 	var stockPriceResponse StockPriceResponse
 	err = json.Unmarshal(body, &stockPriceResponse)
 	if err != nil {
-		fmt.Println("Error unmarshalling response:", err)
-		return
+		return nil, err
 	}
 
-	for _, data := range stockPriceResponse.Data {
-		_, err = db.Exec(upsertStockPriceSQL,
-			data.Code, data.Date, data.O, data.H, data.L, data.C, data.Vo, data.AdjC, data.AdjFactor)
-		if err != nil {
-			fmt.Println("Error inserting data:", err)
-			return
-		}
-		fmt.Println("Inserted/Updated:", data.Date, data.AdjC)
+	return &stockPriceResponse, nil
+}
+
+func setupDB(path string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite", path)
+	if err != nil {
+		return nil, err
 	}
+
+	_, err = db.Exec(schemaSQL)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
+func upsertStockPrice(db *sql.DB, p StockPrice) error {
+	_, err := db.Exec(upsertStockPriceSQL,
+		p.Code, p.Date, p.O, p.H, p.L, p.C, p.Vo, p.AdjC, p.AdjFactor)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Inserted/Updated:", p.Date, p.AdjC)
+	return nil
 }
