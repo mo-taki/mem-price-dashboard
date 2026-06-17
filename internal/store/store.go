@@ -45,5 +45,5 @@ func (s *Store) UpsertPrice(p jquants.StockPrice) error {
 }
 
 func (s *Store) Close() error {
-    return s.db.Close()
+	return s.db.Close()
 }

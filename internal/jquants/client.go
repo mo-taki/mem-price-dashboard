@@ -32,15 +32,15 @@ type StockPrice struct {
 }
 
 type Client struct {
-    apiKey     string
-    httpClient *http.Client
+	apiKey     string
+	httpClient *http.Client
 }
 
 func New(apiKey string) *Client {
-    return &Client{
-        apiKey:     apiKey,
-        httpClient: &http.Client{},
-    }
+	return &Client{
+		apiKey:     apiKey,
+		httpClient: &http.Client{},
+	}
 }
 
 func (c *Client) FetchStockPrices(code string) ([]StockPrice, error) {
