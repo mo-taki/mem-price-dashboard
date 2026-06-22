@@ -3,7 +3,6 @@ package store
 import (
 	"database/sql"
 	_ "embed"
-	"fmt"
 
 	"github.com/mo-taki/mem-price-dashboard/internal/jquants"
 	_ "modernc.org/sqlite"
@@ -52,7 +51,6 @@ func (s *Store) UpsertPrice(p jquants.StockPrice) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Inserted/Updated:", p.Date, p.AdjC)
 	return nil
 }
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -14,7 +13,7 @@ const dbPath = "./stock_prices.db"
 func main() {
 	st, err := store.Open(dbPath)
 	if err != nil {
-		fmt.Println("Error opening database:", err)
+		log.Println("Error opening database:", err)
 		return
 	}
 	defer st.Close()

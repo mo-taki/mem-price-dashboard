@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -21,13 +21,13 @@ func main() {
 	client := jquants.New(apiKey)
 	prices, err := client.FetchStockPrices(stockCode)
 	if err != nil {
-		fmt.Println("Error fetching stock prices:", err)
+		log.Println("Error fetching stock prices:", err)
 		return
 	}
 
 	st, err := store.Open(dbPath)
 	if err != nil {
-		fmt.Println("Error opening database:", err)
+		log.Println("Error opening database:", err)
 		return
 	}
 	defer st.Close()
@@ -35,8 +35,9 @@ func main() {
 	for _, data := range prices {
 		err := st.UpsertPrice(data)
 		if err != nil {
-			fmt.Println("Error upserting stock price:", err)
+			log.Println("Error upserting stock price:", err)
 			continue
 		}
+		log.Println("Inserted/Updated:", data.Date, data.AdjC)
 	}
 }
