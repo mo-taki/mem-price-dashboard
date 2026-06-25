@@ -21,7 +21,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/prices", pricesHandler(st))
 
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Fatal(http.ListenAndServe(":8080", cors(mux)))
 }
 
 func pricesHandler(s *store.Store) http.HandlerFunc {
@@ -47,4 +47,14 @@ func pricesHandler(s *store.Store) http.HandlerFunc {
 			return
 		}
 	}
+}
+
+func cors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*") // MEMO: 一旦全許可
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
+		next.ServeHTTP(w, r)
+	})
 }
