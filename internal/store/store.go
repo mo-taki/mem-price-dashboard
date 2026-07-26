@@ -15,6 +15,14 @@ const upsertStockPriceSQL = `INSERT INTO stock_prices (code, date, open, high, l
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(code, date)
 		DO UPDATE SET open=excluded.open, high=excluded.high, low=excluded.low, close=excluded.close, volume=excluded.volume, adj_close=excluded.adj_close, adj_factor=excluded.adj_factor`
 
+const upsertProductSQL = `INSERT INTO products (product, category, price_type)
+		VALUES (?, ?, ?) ON CONFLICT (product)
+		DO UPDATE SET category=excluded.category, price_type=excluded.price_type`
+
+const upsertMarketPriceSQL = `INSERT INTO market_prices (date, product, price)
+		VALUES (?, ?, ?) ON CONFLICT (date, product)
+		DO UPDATE SET price=excluded.price`
+
 type Store struct {
 	db *sql.DB
 }
@@ -31,8 +39,28 @@ type Price struct {
 	AdjFactor float64 `json:"adjFactor"`
 }
 
+type Product struct {
+	Product   string `json:"product"`
+	Category  string `json:"category"`
+	PriceType string `json:"priceType"`
+}
+
+type MarketPrice struct {
+	Date    string  `json:"date"`
+	Product string  `json:"product"`
+	Price   float64 `json:"price"`
+}
+
+type ProductMarketPrice struct {
+	Date      string  `json:"date"`
+	Product   string  `json:"product"`
+	Price     float64 `json:"price"`
+	Category  string  `json:"category"`
+	PriceType string  `json:"priceType"`
+}
+
 func Open(path string) (*Store, error) {
-	db, err := sql.Open("sqlite", path)
+	db, err := sql.Open("sqlite", path+"?_pragma=foreign_keys(1)")
 	if err != nil {
 		return nil, err
 	}
@@ -81,5 +109,50 @@ func (s *Store) ListPrices(code string) ([]Price, error) {
 	}
 
 	return prices, nil
+}
 
+func (s *Store) UpsertProduct(p Product) error {
+	_, err := s.db.Exec(upsertProductSQL,
+		p.Product, p.Category, p.PriceType)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Store) UpsertMarketPrice(m MarketPrice) error {
+	_, err := s.db.Exec(upsertMarketPriceSQL,
+		m.Date, m.Product, m.Price)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Store) ListMarketPrices(product string) ([]ProductMarketPrice, error) {
+	q := `SELECT m.date, m.product, m.price, p.category, p.price_type
+	FROM market_prices m
+	JOIN products p ON m.product = p.product
+	WHERE m.product = ?;`
+	rows, err := s.db.Query(q, product)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var productMarketPrices []ProductMarketPrice
+
+	for rows.Next() {
+		var pm ProductMarketPrice
+		if err := rows.Scan(&pm.Date, &pm.Product, &pm.Price, &pm.Category, &pm.PriceType); err != nil {
+			return nil, err
+		}
+		productMarketPrices = append(productMarketPrices, pm)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return productMarketPrices, nil
 }
