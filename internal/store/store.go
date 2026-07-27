@@ -120,6 +120,31 @@ func (s *Store) UpsertProduct(p Product) error {
 	return nil
 }
 
+func (s *Store) ListProducts() ([]Product, error) {
+	q := `SELECT product, category, price_type FROM products`
+	rows, err := s.db.Query(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []Product
+
+	for rows.Next() {
+		var p Product
+		if err := rows.Scan(&p.Product, &p.Category, &p.PriceType); err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}
+
 func (s *Store) UpsertMarketPrice(m MarketPrice) error {
 	_, err := s.db.Exec(upsertMarketPriceSQL,
 		m.Date, m.Product, m.Price)

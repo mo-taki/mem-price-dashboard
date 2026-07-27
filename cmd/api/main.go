@@ -20,7 +20,8 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/prices", pricesHandler(st))
-	mux.HandleFunc("POST /api/products", productsHandler(st))
+	mux.HandleFunc("POST /api/products", productsPostHandler(st))
+	mux.HandleFunc("GET /api/products", productsGetHandler(st))
 	mux.HandleFunc("POST /api/market", marketPostHandler(st))
 	mux.HandleFunc("GET /api/market", marketGetHandler(st))
 
@@ -52,7 +53,7 @@ func pricesHandler(s *store.Store) http.HandlerFunc {
 	}
 }
 
-func productsHandler(s *store.Store) http.HandlerFunc {
+func productsPostHandler(s *store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var p store.Product
 		if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
@@ -68,6 +69,25 @@ func productsHandler(s *store.Store) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusCreated)
+	}
+}
+
+func productsGetHandler(s *store.Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		products, err := s.ListProducts()
+		if err != nil {
+			log.Printf("list products: %v", err)
+			http.Error(w, "error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(w).Encode(products)
+		if err != nil {
+			log.Printf("%v", err)
+			http.Error(w, "error", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
