@@ -113,10 +113,6 @@ func marketPostHandler(s *store.Store) http.HandlerFunc {
 func marketGetHandler(s *store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		product := r.URL.Query().Get("product")
-		if product == "" {
-			http.Error(w, "product is empty", http.StatusBadRequest)
-			return
-		}
 
 		prices, err := s.ListMarketPrices(product)
 		if err != nil {

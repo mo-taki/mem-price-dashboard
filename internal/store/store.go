@@ -157,9 +157,15 @@ func (s *Store) UpsertMarketPrice(m MarketPrice) error {
 func (s *Store) ListMarketPrices(product string) ([]ProductMarketPrice, error) {
 	q := `SELECT m.date, m.product, m.price, p.category, p.price_type
 	FROM market_prices m
-	JOIN products p ON m.product = p.product
-	WHERE m.product = ?;`
-	rows, err := s.db.Query(q, product)
+	JOIN products p ON m.product = p.product`
+
+	var args []any
+	if product != "" {
+		q += " WHERE m.product = ?"
+		args = append(args, product)
+	}
+
+	rows, err := s.db.Query(q, args...)
 	if err != nil {
 		return nil, err
 	}
