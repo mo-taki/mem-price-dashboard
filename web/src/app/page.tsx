@@ -37,6 +37,12 @@ export default function Home() {
   const [inputDate, setInputDate] = useState("");
   const [inputPrice, setInputPrice] = useState("");
 
+  const loadMarket = () => {
+    fetch("http://localhost:8080/api/market")
+      .then((res) => res.json())
+      .then((data) => setMemPrices(data));
+  };
+
   useEffect(() => {
     fetch("http://localhost:8080/api/prices?code=285A0")
       .then((res) => res.json())
@@ -44,9 +50,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/market")
-      .then((res) => res.json())
-      .then((data) => setMemPrices(data));
+    loadMarket();
   }, []);
 
   const mergePrices = () => {
@@ -84,7 +88,19 @@ export default function Home() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+    }).then(() => loadMarket());
+  };
+
+  const handleDelete = (date: string, product: string) => {
+    if (!window.confirm(`${date} / ${product} を削除しますか?`)) return;
+
+    const params = new URLSearchParams({
+      date: date,
+      product: product,
     });
+    fetch(`http://localhost:8080/api/market?${params.toString()}`, {
+      method: "DELETE",
+    }).then(() => loadMarket());
   };
 
   return (
@@ -143,6 +159,7 @@ export default function Home() {
             <th className="px-3 py-2 font-medium">日付</th>
             <th className="px-3 py-2 font-medium">製品名</th>
             <th className="px-3 py-2 text-right font-medium">価格</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -154,6 +171,14 @@ export default function Home() {
               <td className="px-3 py-2">{m.date}</td>
               <td className="px-3 py-2">{m.product}</td>
               <td className="px-3 py-2 text-right tabular-nums">{m.price}</td>
+              <td className="px-3 py-2 text-right">
+                <button
+                  className="text-red-600 hover:underline"
+                  onClick={() => handleDelete(m.date, m.product)}
+                >
+                  削除
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
