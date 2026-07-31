@@ -89,7 +89,7 @@ export default function Home() {
 
   return (
     <main>
-      <h2>チャート</h2>
+      <h2 className="mt-8 mb-2 text-lg font-semibold">株価チャート</h2>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={mergePrices()}>
           <XAxis dataKey="date" />
@@ -99,13 +99,13 @@ export default function Home() {
           <Line yAxisId="stock" dataKey="adjClose" stroke="#8884d8" />
           <Line
             yAxisId="market"
-            dataKey="DDR5 16Gb"
+            dataKey="NAND 512Gb TLC Wafer"
             stroke="#82ca9d"
             connectNulls
           />
         </LineChart>
       </ResponsiveContainer>
-      <h2>データ入力</h2>
+      <h2 className="mt-8 mb-2 text-lg font-semibold">メモリ価格入力</h2>
       <form onSubmit={handleSubmit}>
         <select
           value={selectedProduct}
@@ -134,9 +134,30 @@ export default function Home() {
             value={inputPrice}
           />
         </label>
-
         <button type="submit">確定</button>
       </form>
+      <h2 className="mt-8 mb-2 text-lg font-semibold">メモリ価格</h2>
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="border-b border-zinc-300 bg-zinc-100 text-left text-zinc-700">
+            <th className="px-3 py-2 font-medium">日付</th>
+            <th className="px-3 py-2 font-medium">製品名</th>
+            <th className="px-3 py-2 text-right font-medium">価格</th>
+          </tr>
+        </thead>
+        <tbody>
+          {memPrices.map((m) => (
+            <tr
+              key={`${m.product}-${m.date}`}
+              className="border-b border-zinc-200 hover:bg-zinc-50"
+            >
+              <td className="px-3 py-2">{m.date}</td>
+              <td className="px-3 py-2">{m.product}</td>
+              <td className="px-3 py-2 text-right tabular-nums">{m.price}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </main>
   );
 }
