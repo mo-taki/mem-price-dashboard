@@ -24,6 +24,7 @@ func main() {
 	mux.HandleFunc("GET /api/products", productsGetHandler(st))
 	mux.HandleFunc("POST /api/market", marketPostHandler(st))
 	mux.HandleFunc("GET /api/market", marketGetHandler(st))
+	mux.HandleFunc("DELETE /api/market", marketDeleteHandler(st))
 
 	log.Fatal(http.ListenAndServe(":8080", cors(mux)))
 }
@@ -128,6 +129,26 @@ func marketGetHandler(s *store.Store) http.HandlerFunc {
 			http.Error(w, "error", http.StatusInternalServerError)
 			return
 		}
+	}
+}
+
+func marketDeleteHandler(s *store.Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		date := r.URL.Query().Get("date")
+		product := r.URL.Query().Get("product")
+		if date == "" || product == "" {
+			http.Error(w, "date or product is empty", http.StatusBadRequest)
+			return
+		}
+
+		err := s.DeleteMarketPrice(date, product)
+		if err != nil {
+			log.Printf("%v", err)
+			http.Error(w, "error", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 

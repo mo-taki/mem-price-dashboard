@@ -187,3 +187,14 @@ func (s *Store) ListMarketPrices(product string) ([]ProductMarketPrice, error) {
 
 	return productMarketPrices, nil
 }
+
+func (s *Store) DeleteMarketPrice(date, product string) error {
+	q := "DELETE FROM market_prices WHERE date=? AND product=?"
+
+	_, err := s.db.Exec(q,
+		date, product)
+	if err != nil {
+		return err
+	}
+	return nil
+}
