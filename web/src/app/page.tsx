@@ -7,6 +7,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Legend,
   ResponsiveContainer,
 } from "recharts";
 
@@ -108,28 +109,42 @@ export default function Home() {
   };
 
   return (
-    <main>
-      <h2 className="mt-8 mb-2 text-lg font-semibold">株価チャート</h2>
+    <main className="min-h-screen bg-white p-6 text-zinc-900">
+      <h2 className="mt-4 mb-2 text-lg font-semibold">株価チャート</h2>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={mergePrices()}>
           <XAxis dataKey="date" />
           <YAxis yAxisId="stock" orientation="left" />
           <YAxis yAxisId="market" orientation="right" />
           <Tooltip />
-          <Line yAxisId="stock" dataKey="adjClose" stroke="#8884d8" />
+          <Legend />
+          <Line
+            yAxisId="stock"
+            dataKey="adjClose"
+            name="キオクシア株価"
+            stroke="#8884d8"
+          />
           <Line
             yAxisId="market"
             dataKey="NAND 512Gb TLC Wafer"
+            name="NAND 512Gb TLC Wafer"
             stroke="#82ca9d"
             connectNulls
           />
         </LineChart>
       </ResponsiveContainer>
+
+      <hr />
+
       <h2 className="mt-8 mb-2 text-lg font-semibold">メモリ価格入力</h2>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-wrap items-end gap-3 my-5"
+      >
         <select
           value={selectedProduct}
           onChange={(e) => setSelectedProduct(e.target.value)}
+          className="rounded border border-zinc-300 px-3 py-2"
         >
           <option value="">-</option>
           {products.map((p) => (
@@ -138,24 +153,34 @@ export default function Home() {
             </option>
           ))}
         </select>
-        <label>
-          日付:{" "}
+        <label className="flex flex-col text-sm">
+          日付
           <input
             type="date"
-            onChange={(e) => setInputDate(e.target.value)}
             value={inputDate}
+            onChange={(e) => setInputDate(e.target.value)}
+            className="rounded border border-zinc-300 px-2 py-2"
           />
         </label>
-        <label>
-          価格:{" "}
+        <label className="flex flex-col text-sm">
+          価格
           <input
             type="number"
-            onChange={(e) => setInputPrice(e.target.value)}
             value={inputPrice}
+            onChange={(e) => setInputPrice(e.target.value)}
+            className="rounded border border-zinc-300 px-2 py-2"
           />
         </label>
-        <button type="submit">確定</button>
+        <button
+          type="submit"
+          className="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+        >
+          確定
+        </button>
       </form>
+
+      <hr />
+
       <h2 className="mt-8 mb-2 text-lg font-semibold">メモリ価格</h2>
       <table className="w-full border-collapse text-sm">
         <thead>
@@ -177,8 +202,8 @@ export default function Home() {
               <td className="px-3 py-2 text-right tabular-nums">{m.price}</td>
               <td className="px-3 py-2 text-right">
                 <button
-                  className="text-red-600 hover:underline"
                   onClick={() => handleDelete(m.date, m.product)}
+                  className="text-red-600 hover:underline"
                 >
                   削除
                 </button>
