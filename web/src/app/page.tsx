@@ -37,6 +37,8 @@ export default function Home() {
   const [inputDate, setInputDate] = useState("");
   const [inputPrice, setInputPrice] = useState("");
 
+  const FROM = "2026-01-01";
+
   const loadMarket = () => {
     fetch("http://localhost:8080/api/market")
       .then((res) => res.json())
@@ -66,7 +68,9 @@ export default function Home() {
       byDate.set(m.date, entry);
     }
 
-    return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+    return [...byDate.values()]
+      .filter((d) => d.date >= FROM)
+      .sort((a, b) => a.date.localeCompare(b.date));
   };
 
   useEffect(() => {
