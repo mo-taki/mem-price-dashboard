@@ -8,6 +8,7 @@ import {
   YAxis,
   Tooltip,
   Legend,
+  CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
 
@@ -114,9 +115,22 @@ export default function Home() {
       <h2 className="mt-4 mb-2 text-lg font-semibold">株価チャート</h2>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={mergePrices()}>
+          <CartesianGrid
+            strokeDasharray="3 3"
+            vertical={false}
+            yAxisId="stock"
+          />
           <XAxis dataKey="date" />
-          <YAxis yAxisId="stock" orientation="left" />
-          <YAxis yAxisId="market" orientation="right" />
+          <YAxis
+            yAxisId="stock"
+            orientation="left"
+            label={{ value: "株価(円)", angle: -90, position: "insideLeft" }}
+          />
+          <YAxis
+            yAxisId="market"
+            orientation="right"
+            label={{ value: "市況($)", angle: 90, position: "insideRight" }}
+          />
           <Tooltip />
           <Legend />
           <Line
