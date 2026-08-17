@@ -2,21 +2,21 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/mo-taki/mem-price-dashboard/internal/config"
 	"github.com/mo-taki/mem-price-dashboard/internal/jquants"
 	"github.com/mo-taki/mem-price-dashboard/internal/store"
 )
 
 const (
 	stockCode = "285A0" // Kioxia
-	dbPath    = "./stock_prices.db"
 )
 
 func main() {
 	godotenv.Load()
-	apiKey := os.Getenv("JQUANTS_API_KEY")
+	apiKey := config.Getenv("JQUANTS_API_KEY", "")
+	dbPath := config.Getenv("DB_PATH", "./stock_prices.db")
 
 	client := jquants.New(apiKey)
 	prices, err := client.FetchStockPrices(stockCode)

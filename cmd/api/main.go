@@ -5,13 +5,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/mo-taki/mem-price-dashboard/internal/config"
 	"github.com/mo-taki/mem-price-dashboard/internal/store"
 )
 
-const dbPath = "./stock_prices.db"
-const webDir = "web/out"
-
 func main() {
+	dbPath := config.Getenv("DB_PATH", "./stock_prices.db")
+	webDir := config.Getenv("WEB_DIR", "web/out")
+	port := config.Getenv("PORT", "8080")
+
 	st, err := store.Open(dbPath)
 	if err != nil {
 		log.Println("Error opening database:", err)
@@ -29,7 +31,7 @@ func main() {
 
 	mux.Handle("/", fileServerHandler(webDir))
 
-	log.Fatal(http.ListenAndServe(":8080", cors(mux)))
+	log.Fatal(http.ListenAndServe(":"+port, cors(mux)))
 }
 
 func pricesHandler(s *store.Store) http.HandlerFunc {
