@@ -39,15 +39,16 @@ export default function Home() {
   const [inputPrice, setInputPrice] = useState("");
 
   const FROM = "2026-01-01";
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "";
 
   const loadMarket = () => {
-    fetch("http://localhost:8080/api/market")
+    fetch(`${API_BASE}/api/market`)
       .then((res) => res.json())
       .then((data) => setMemPrices(data));
   };
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/prices?code=285A0")
+    fetch(`${API_BASE}/api/prices?code=285A0`)
       .then((res) => res.json())
       .then((data) => setStockPrices(data));
   }, []);
@@ -75,7 +76,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/products")
+    fetch(`${API_BASE}/api/products`)
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, []);
@@ -89,7 +90,7 @@ export default function Home() {
       price: Number(inputPrice),
     };
 
-    fetch("http://localhost:8080/api/market", {
+    fetch(`${API_BASE}/api/market`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -103,7 +104,7 @@ export default function Home() {
       date: date,
       product: product,
     });
-    fetch(`http://localhost:8080/api/market?${params.toString()}`, {
+    fetch(`${API_BASE}/api/market?${params.toString()}`, {
       method: "DELETE",
     }).then(() => loadMarket());
   };
@@ -122,7 +123,7 @@ export default function Home() {
             yAxisId="stock"
             dataKey="adjClose"
             name="キオクシア株価"
-            stroke="#8884d8"
+            stroke="#ff0000"
           />
           <Line
             yAxisId="market"
@@ -131,6 +132,20 @@ export default function Home() {
             stroke="#82ca9d"
             connectNulls
           />
+          <Line
+            yAxisId="market"
+            dataKey="DDR5 16Gb (2Gx8) 4800/5600"
+            name="DDR5 16Gb (2Gx8) 4800/5600"
+            stroke="#537afa"
+            connectNulls
+          />
+          {/* <Line
+            yAxisId="market"
+            dataKey="NAND 256Gb TLC Wafer"
+            name="NAND 256Gb TLC Wafer"
+            stroke="#9c37fa"
+            connectNulls
+          /> */}
         </LineChart>
       </ResponsiveContainer>
 
