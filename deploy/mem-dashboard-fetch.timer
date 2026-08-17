@@ -1,0 +1,11 @@
+[Unit]
+Description=Run mem-price-dashboard stock fetch daily
+
+[Timer]
+# 毎日 18:00(システムのタイムゾーン基準。ミニPC を JST にしておくこと)
+OnCalendar=*-*-* 18:00:00
+# マシンが停止していて実行時刻を逃した場合、起動後に取りこぼし分を実行
+Persistent=true
+
+[Install]
+WantedBy=timers.target

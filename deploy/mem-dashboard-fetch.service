@@ -1,0 +1,11 @@
+[Unit]
+Description=mem-price-dashboard stock fetch batch
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ew
+WorkingDirectory=/home/ew/work/mem-price-dashboard
+EnvironmentFile=/home/ew/work/mem-price-dashboard/.env
+ExecStart=/home/ew/work/mem-price-dashboard/bin/fetch
