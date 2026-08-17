@@ -5,11 +5,13 @@ DRAM/NAND メモリ市況（スポット/契約価格）と、キオクシア等
 
 メモリ市況と半導体メーカーの株価の連動を、時系列で見比べることが目的。
 
-自宅サーバにてAPI起動、cronにて株価取得バッチ定期実行で運用予定。
+自宅サーバにてAPI起動、systemd timerにて株価取得バッチ定期実行で運用。
 
 ## スクリーンショット
 
-TODO
+![ダッシュボード](docs/screenshot.png)
+
+※ DDR5 の 2026-07-31 以前の値は推定値(傾向把握用)
 
 ## 主な機能
 
@@ -25,7 +27,7 @@ Go のバックエンド（バッチ + HTTP API）と Next.js のフロントエ
 
 ```
 cmd/
-  fetch/        株価取得バッチ（J-Quants → SQLite。cronで定期実行する想定）
+  fetch/        株価取得バッチ（J-Quants → SQLite。systemd timerで定期実行）
   api/          HTTP API サーバ（SQLite の内容を JSON で配信）
 internal/
   jquants/      J-Quants API クライアント
@@ -60,6 +62,9 @@ web/            Next.js フロントエンド（App Router / TypeScript / Tailwi
 | POST     | `/api/market`                            | 市況価格を登録                   |
 | DELETE   | `/api/market?date=<date>&product=<name>` | 市況価格を削除                   |
 
-## ステータス
+## TODO
 
-開発中。中核機能（株価取得・API・市況入力・重ねチャート）は動作。
+- 決算発表日をチャートにマーク
+- 財務・capex の取得と重ね表示
+- 複数銘柄対応
+- グラフの線の表示/非表示トグル
