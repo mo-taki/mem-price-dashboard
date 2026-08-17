@@ -9,6 +9,7 @@ import (
 )
 
 const dbPath = "./stock_prices.db"
+const webDir = "web/out"
 
 func main() {
 	st, err := store.Open(dbPath)
@@ -25,6 +26,8 @@ func main() {
 	mux.HandleFunc("POST /api/market", marketPostHandler(st))
 	mux.HandleFunc("GET /api/market", marketGetHandler(st))
 	mux.HandleFunc("DELETE /api/market", marketDeleteHandler(st))
+
+	mux.Handle("/", fileServerHandler(webDir))
 
 	log.Fatal(http.ListenAndServe(":8080", cors(mux)))
 }
@@ -150,6 +153,10 @@ func marketDeleteHandler(s *store.Store) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusNoContent)
 	}
+}
+
+func fileServerHandler(dir string) http.Handler {
+	return http.FileServer(http.Dir(dir))
 }
 
 func cors(next http.Handler) http.Handler {
