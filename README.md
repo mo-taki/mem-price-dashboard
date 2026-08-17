@@ -28,7 +28,7 @@ Go のバックエンド（バッチ + HTTP API）と Next.js のフロントエ
 ```
 cmd/
   fetch/        株価取得バッチ（J-Quants → SQLite。systemd timerで定期実行）
-  api/          HTTP API サーバ（SQLite の内容を JSON で配信）
+  api/          HTTP API サーバ（SQLite の内容を JSON 配信 + フロントの静的ファイルを配信）
 internal/
   jquants/      J-Quants API クライアント
   store/        SQLite の読み書き（スキーマ所有）
