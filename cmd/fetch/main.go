@@ -32,12 +32,16 @@ func main() {
 	}
 	defer st.Close()
 
+	var saved, failed int
+
 	for _, data := range prices {
 		err := st.UpsertPrice(data)
 		if err != nil {
 			log.Println("Error upserting stock price:", err)
+			failed++
 			continue
 		}
-		log.Println("Inserted/Updated:", data.Date, data.AdjC)
+		saved++
 	}
+	log.Printf("stock fetch done: %d ok, %d failed (code=%s)", saved, failed, stockCode)
 }
