@@ -138,6 +138,7 @@ export default function Home() {
             dataKey="adjClose"
             name="キオクシア株価"
             stroke="#ff0000"
+            connectNulls
           />
           <Line
             yAxisId="market"
